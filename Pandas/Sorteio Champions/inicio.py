@@ -58,49 +58,54 @@ GrupoG = pd.DataFrame(columns=['Time','Pais'])
 GrupoH = pd.DataFrame(columns=['Time','Pais'])
 
 grupos = [GrupoA, GrupoB, GrupoC, GrupoD, GrupoE, GrupoF, GrupoG, GrupoH]
-grupos_nomes = ["Grupo A","Grupo B", "Grupo C", "Grupo D", "Grupo E", "Grupo F", "Grupo G","Grupo H"]
-    
-
-def sortear():
-    numero = random.randrange(7)
-    return numero
+grupos_nomes = ["Grupo A","Grupo B", "Grupo C", "Grupo D", "Grupo E", "Grupo F", "Grupo G","Grupo H"]    
 
 completo = False
 pote = 0
 potes = [pote1,pote2,pote3,pote4]
-
+sorteados = 0
 while not completo:
     print("----------------------------------------------------------------------------")
-    comando = input(f"Aperte uma tecla para sortear um time do pote {pote + 1}: \n")
-    numero_sorteado = sortear()
-    time_sorteado = potes[pote].iloc[[numero_sorteado]]
-    potes[pote].at[numero_sorteado,'Sorteado']= True
-    print(time_sorteado[['Time','Pais']].to_string(index=False)+"\n")
+    print(f"Aperte uma tecla para sortear um time do pote {pote + 1}: \n")
+    times_disponiveis = potes[pote].query('Sorteado == False')
+    time_sorteado = times_disponiveis.sample()
+    index = time_sorteado.query('Sorteado == False').index.tolist()
+    potes[pote].at[index[0],'Sorteado']= True
 
 
+
+
+    print(time_sorteado[['Time','Pais']].to_string(index=True)+"\n")
     
-    comando2 = input(f"Aperte uma tecla para sortear um grupo: \n")
-    disponivel = False
-    while not disponivel:
-        grupo_sorteado = sortear()
-        paises = list(grupos[grupo_sorteado]['Pais'])
+    print(f"Aperte uma tecla para sortear um grupo: \n")
+    grupo_disponivel = False
+    while not grupo_disponivel:
+        nome_grupo_sorteado = random.choice(grupos_nomes)
+        index_grupo_sorteado = grupos_nomes.index(nome_grupo_sorteado)
+        grupo_sorteado = grupos[index_grupo_sorteado]
+        paises = list(grupo_sorteado['Pais'])
         
-        if grupos[grupo_sorteado].shape[0]  < 4: 
-            print(f"Grupo sorteado: {grupos_nomes[grupo_sorteado]}")
-            #grupos[grupo_sorteado] = pd.concat(time_sorteado[['Time','Pais']])
-            grupos[grupo_sorteado] = pd.concat([grupos[grupo_sorteado], time_sorteado[['Time','Pais']]], axis=0,ignore_index=True)
-            disponivel = True
-    print(grupos[grupo_sorteado])
+        if grupo_sorteado.shape[0]  < 4: 
+            print(f"Grupo sorteado: {nome_grupo_sorteado}\n")
+            grupo_sorteado = pd.concat([grupo_sorteado, time_sorteado[['Time','Pais']]], axis=0,ignore_index=True)
+            grupo_disponivel = True
+    print(grupo_sorteado)
     
     print("----------------------------------------------------------------------------")
-    if pote < 3:
-        pote+=1
-    else:
-        pote=0        
-
-    if comando == "1":
+    if sorteados == 6 :
         completo = True
+        pote+=1
+    elif sorteados == 5:
+        print("ooooi")
+    else:    
+        sorteados += 1
+    # if comando == "1":
+    #     completo = True
 
+
+
+for i in grupos:
+    print(i)
 
 # print(pote_vez.to_string(index=False))
 
